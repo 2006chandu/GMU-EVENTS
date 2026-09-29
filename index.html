@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMU Events | Official Registration Portal</title>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css?v=12">
+</head>
+<body>
+    
+    <!-- Top Utility Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-group">
+                <span><i class="fa-solid fa-headset"></i> Event Helpdesk: 8192233344</span>
+                <span class="divider">|</span>
+                <span><i class="fa-solid fa-envelope"></i> events@gmu.ac.in</span>
+            </div>
+            <div class="top-bar-group">
+                <span id="userGreeting" style="display:none; color: var(--maroon-primary); font-weight: bold;"></span>
+                <a href="#" class="login-btn" id="navLoginBtn">LOGIN</a>
+                <a href="#" class="login-btn" id="navLogoutBtn" style="display:none;">LOGOUT</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <img src="https://gmu.ac.in/assets/imgs/gmulogo1.png" alt="GMU Logo" style="height: 80px;">
+                <div class="logo-text">
+                    <h1 style="font-family: var(--font-heading);">GMU EVENTS</h1>
+                    <span style="color: var(--gold-accent); font-style: italic; font-size: 12px;">Official Registration Portal</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Home</a></li>
+                <li class="student-only" style="display:none;"><a href="#" id="navEventsBtn">Events</a></li>
+                <li class="student-only" style="display:none;"><a href="#" id="navCalendarBtn">Calendar</a></li>
+                <li class="student-only" style="display:none;"><a href="#" id="navRegisterBtn">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Upcoming Events Marquee -->
+    <div class="public-view" style="background: var(--maroon-dark); color: var(--gold-accent); padding: 8px 0; font-size: 14px; font-weight: 600; border-bottom: 2px solid var(--gold-button); box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; z-index: 999;">
+        <div style="display: flex; align-items: center;">
+            <div style="background: var(--gold-metallic); color: #000; padding: 8px 20px; font-weight: bold; white-space: nowrap; z-index: 10;">
+                <i class="fa-solid fa-bell fa-shake"></i> UPCOMING EVENTS
+            </div>
+            <marquee behavior="scroll" direction="left" scrollamount="6" id="upcomingMarquee" style="flex: 1; padding: 0 20px;">
+                <!-- JS will populate -->
+                Loading upcoming events...
+            </marquee>
+        </div>
+    </div>
+
+    <!-- Hero Section (Visible to public) -->
+    <section id="home" class="hero public-view">
+        <div class="hero-overlay" style="background: rgba(0, 0, 0, 0.75);"></div>
+        <div class="container hero-content" style="max-width: 900px; padding-top: 50px;">
+            <h1 style="color: var(--gold-topbar); font-family: var(--font-heading); font-size: 58px; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; letter-spacing: 2px;">GMU EVENTS 2026</h1>
+            
+            <p style="color: var(--text-white); font-size: 20px; line-height: 1.6; margin-bottom: 40px; font-weight: 300;">
+                Igniting Innovation, Inspiring Transformation ...<br>
+                Welcome to the GM University Official Event Portal &ndash; A hub for Technical Symposiums, Cultural Fests, and Sports Meets. Log in to explore and secure your spot in the most anticipated collegiate events of the year.
+            </p>
+            
+            <div class="hero-buttons" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <button class="btn" style="background: linear-gradient(180deg, #FDF0B9 0%, #E3C15A 100%); color: #000; font-weight: 700; padding: 15px 35px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 16px; border:none; cursor:pointer;" onclick="document.querySelector('#navLoginBtn').click()">Student Login</button>
+                <button class="btn" style="background: linear-gradient(180deg, #FDF0B9 0%, #E3C15A 100%); color: #000; font-weight: 700; padding: 15px 35px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 16px; border:none; cursor:pointer;" onclick="document.querySelector('#navLoginBtn').click()">Admin Access</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Dashboard -->
+    <div class="container main-layout" id="adminDashboardView" style="display:none; flex-direction: column; margin-top: 40px;">
+        <section class="section" style="width: 100%;">
+            <h2 class="section-title">Admin Dashboard</h2>
+            
+            <!-- Add / Edit Event Form -->
+            <div class="registration-wrapper" style="margin-bottom: 40px; width: 100%;">
+                <div class="form-container" style="width: 100%; display: block;">
+                    <h3 style="color: var(--maroon-primary); margin-bottom: 20px;" id="adminFormTitle">Add New Event</h3>
+                    <form id="adminEventForm">
+                        <input type="hidden" id="adminEventId">
+                        
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Event Name *</label>
+                                <input type="text" id="adminEventName" required>
+                            </div>
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Event Type *</label>
+                                <select id="adminEventType" required>
+                                    <option value="Technical">Technical</option>
+                                    <option value="Cultural">Cultural</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Academic">Academic</option>
+                                    <option value="Workshop">Workshop</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="input-group" style="flex:1; min-width: 150px;">
+                                <label>Event Date *</label>
+                                <input type="date" id="adminEventDate" required>
+                            </div>
+                            <div class="input-group" style="flex:1; min-width: 150px;">
+                                <label>Start Time</label>
+                                <input type="time" id="adminStartTime">
+                            </div>
+                            <div class="input-group" style="flex:1; min-width: 150px;">
+                                <label>End Time</label>
+                                <input type="time" id="adminEndTime">
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Venue *</label>
+                                <input type="text" id="adminEventVenue" required>
+                            </div>
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Organized By</label>
+                                <input type="text" id="adminOrganizer" placeholder="e.g. Dept of Computer Science">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Registration Deadline</label>
+                                <input type="date" id="adminDeadline">
+                            </div>
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Event Status *</label>
+                                <select id="adminStatus" required>
+                                    <option value="Open">Registration Open</option>
+                                    <option value="Closing Soon">Registration Closing Soon</option>
+                                    <option value="Closed">Registration Closed</option>
+                                    <option value="Completed">Event Completed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Participation</label>
+                                <input type="text" id="adminParticipation" placeholder="e.g. Individual or Team">
+                            </div>
+                            <div class="input-group" style="flex:1; min-width: 250px;">
+                                <label>Team Size</label>
+                                <input type="text" id="adminTeamSize" placeholder="e.g. 2-4 members">
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Eligibility</label>
+                            <input type="text" id="adminEligibility" placeholder="e.g. Open to all BCA students">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Event Description *</label>
+                            <textarea id="adminEventDesc" rows="3" required></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Event Highlights (One per line)</label>
+                            <textarea id="adminHighlights" rows="3" placeholder="e.g.&#10;Real-world problem solving&#10;Certificates provided"></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Rules & Guidelines (One per line)</label>
+                            <textarea id="adminRules" rows="3" placeholder="e.g.&#10;Teams must have 2-4 members&#10;Bring your ID card"></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Event Schedule (One per line)</label>
+                            <textarea id="adminSchedule" rows="3" placeholder="e.g.&#10;09:00 AM - Registration&#10;10:00 AM - Start"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="input-group" style="flex:1;">
+                                <label>Requirements (One per line)</label>
+                                <textarea id="adminRequirements" rows="2" placeholder="e.g. Laptop, Charger"></textarea>
+                            </div>
+                            <div class="input-group" style="flex:1;">
+                                <label>Prizes (One per line)</label>
+                                <textarea id="adminPrizes" rows="2" placeholder="e.g. 1st Prize: Rs 5000"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button type="submit" class="btn btn-primary" id="adminSubmitBtn">Add Event</button>
+                            <button type="button" class="btn btn-outline" id="adminCancelBtn" style="display:none;">Cancel Edit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Existing Events List -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="color: var(--maroon-primary); margin: 0;">Manage Existing Events</h3>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <input type="text" id="adminEventSearch" placeholder="Search by name, date or type..." style="min-width: 250px; padding: 8px 15px;">
+                </div>
+            </div>
+            <div id="adminEventsList" style="display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 10px;">
+                <!-- JS Populates Admin Event Rows -->
+            </div>
+
+            <!-- Student Registrations List -->
+            <h3 style="color: var(--maroon-primary); margin-top: 50px; margin-bottom: 20px;">Registered Students</h3>
+            <div class="input-group" style="max-width: 350px; margin-bottom: 15px;">
+                <label>Filter Registrations by Event</label>
+                <select id="adminRegFilter">
+                    <option value="All">All Events</option>
+                    <!-- JS Populates this with active events -->
+                </select>
+            </div>
+            <div style="overflow-x: auto; background: var(--bg-white); border-radius: var(--radius); box-shadow: var(--shadow);">
+                <table class="admin-table" style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: var(--maroon-primary); color: var(--text-white); text-align: left;">
+                        <tr>
+                            <th style="padding: 12px 15px;">Student Name</th>
+                            <th style="padding: 12px 15px;">Register No.</th>
+                            <th style="padding: 12px 15px;">Department</th>
+                            <th style="padding: 12px 15px;">Email</th>
+                            <th style="padding: 12px 15px;">Event</th>
+                            <th style="padding: 12px 15px;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminRegTableBody">
+                        <!-- JS Populates Registration Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Student View (Hidden until Student Login) -->
+    <div class="container main-layout" id="studentDashboardView" style="display:none; flex-direction: column;">
+        
+        <!-- MAIN EVENTS DASHBOARD -->
+        <div id="studentMainContent" style="width: 100%;">
+            <!-- Events Section -->
+            <section id="events" class="section" style="width: 100%;">
+                <h2 class="section-title">Explore Events by Category</h2>
+                
+                <!-- Category Filters -->
+                <div class="category-filters" id="categoryFilters" style="display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center;">
+                    <button class="btn btn-primary filter-btn" data-category="All">All Events</button>
+                    <button class="btn btn-outline filter-btn" data-category="Cultural">Cultural</button>
+                    <button class="btn btn-outline filter-btn" data-category="Sports">Sports</button>
+                    <button class="btn btn-outline filter-btn" data-category="Technical">Technical</button>
+                    <button class="btn btn-outline filter-btn" data-category="Academic">Academic</button>
+                    <button class="btn btn-outline filter-btn" data-category="Workshop">Workshop</button>
+                    <button class="btn btn-outline filter-btn" data-category="Other">Other</button>
+                </div>
+
+                <!-- Events Grid -->
+                <div class="events-grid" id="events-container">
+                    <!-- JS populates Event Cards here -->
+                </div>
+            </section>
+
+            <!-- Full Year Calendar Section -->
+            <section id="calendar-section" class="section" style="width: 100%;">
+                <h2 class="section-title">Event Calendar</h2>
+                <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; align-items: flex-start;">
+                    <div class="calendar-wrapper" style="flex: 1; min-width: 300px; max-width: 500px; background: var(--bg-white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; border-top: 4px solid var(--maroon-primary);">
+                        <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <button class="btn btn-outline" id="calPrevBtn" style="padding: 4px 10px; font-size: 13px;"><i class="fa-solid fa-chevron-left"></i></button>
+                            <div style="text-align: center;">
+                                <h3 id="calMonthYear" style="color: var(--maroon-primary); font-size: 18px; font-family: var(--font-heading); margin: 0;"></h3>
+                                <button class="btn btn-outline" id="calTodayBtn" style="margin-top: 5px; padding: 2px 8px; font-size: 11px;">Today</button>
+                            </div>
+                            <button class="btn btn-outline" id="calNextBtn" style="padding: 4px 10px; font-size: 13px;"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        
+                        <div class="calendar-days" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; color: var(--gold-metallic); margin-bottom: 5px; font-size: 12px;">
+                            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                        </div>
+                        
+                        <div class="calendar-dates-grid" id="calDatesGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center;">
+                            <!-- JS Populates calendar days -->
+                        </div>
+                    </div>
+
+                    <!-- Event Preview Panel (Shows when a date is clicked) -->
+                    <div id="calEventPreview" style="display: flex; flex-direction: column; flex: 1; min-width: 300px; max-width: 400px; background: var(--bg-white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; border: 1px solid #eaeaea; max-height: 450px; overflow-y: auto;">
+                        <!-- JS Populates this preview -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- DEDICATED EVENT DETAILS VIEW (Hidden by default) -->
+        <div id="studentEventDetailsView" style="display:none; width: 100%; margin-top: 20px;">
+            <button class="btn btn-outline" id="backToEventsBtn" style="margin-bottom: 20px;"><i class="fa-solid fa-arrow-left"></i> Back to Events</button>
+            
+            <div id="dynamicEventDetails" class="event-details-container">
+                <!-- JS POPULATES FULL RICH EVENT DETAILS HERE -->
+            </div>
+            
+            <section class="section" style="margin-top: 50px;">
+                <h3 style="color: var(--maroon-primary); margin-bottom: 20px; font-family: var(--font-heading);">You May Also Like</h3>
+                <div class="events-grid" id="relatedEventsContainer">
+                    <!-- Related events -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Registration Section -->
+        <section id="register" class="section" style="width: 100%;">
+            <h2 class="section-title">Event Registration</h2>
+            
+            <div class="registration-wrapper">
+                <div class="reg-info">
+                    <h2>Secure Your Spot</h2>
+                    <p>Register for your favorite events. Registration confirmation will be emailed to you immediately.</p>
+                    
+                    <div style="margin-top: 30px;">
+                        <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: center;">
+                            <i class="fa-solid fa-envelope-circle-check" style="font-size: 24px; color: var(--gold-metallic);"></i>
+                            <div>
+                                <h4 style="color: var(--gold-metallic);">Email Confirmation</h4>
+                                <span style="font-size: 13px;">Sent immediately upon registration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-container">
+                    <form id="registration-form" novalidate>
+                        
+                        <div class="input-group">
+                            <label for="studentName">Student Name *</label>
+                            <input type="text" id="studentName" placeholder="Enter your official name">
+                            <span class="error-msg" id="nameError"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="regNo">Register Number *</label>
+                            <input type="text" id="regNo" placeholder="e.g. GMU2026101">
+                            <span class="error-msg" id="regError"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="department">Department *</label>
+                            <input type="text" id="department" placeholder="e.g. Computer Science">
+                            <span class="error-msg" id="deptError"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="phoneNumber">Contact Number *</label>
+                            <input type="tel" id="phoneNumber" placeholder="10-digit mobile number">
+                            <span class="error-msg" id="phoneError"></span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="studentEmail">Email Address *</label>
+                            <input type="email" id="studentEmail" placeholder="your.email@example.com">
+                            <span class="error-msg" id="emailError"></span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="eventSelect">Selected Event *</label>
+                            <select id="eventSelect" style="background: #fff;">
+                                <option value="" disabled selected>-- Select an Event --</option>
+                            </select>
+                            <span class="error-msg" id="eventError"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitRegBtn" style="width: 100%; margin-top: 10px;">
+                            Complete Registration
+                        </button>
+                    </form>
+                    
+                    <!-- Success Modal for Registration -->
+                    <div id="successMessage" class="success-alert">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>
+                            <h4 style="color: var(--maroon-primary);">Registration Successful!</h4>
+                            <p style="color: var(--text-muted); font-size: 14px;">A confirmation email has been sent to your address.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="loginTitle" style="color: var(--maroon-primary); margin:0;">Login Portal</h3>
+                <i class="fa-solid fa-xmark" id="closeLoginBtn" style="cursor: pointer; font-size: 20px;"></i>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button id="tabStudent" class="btn btn-primary" style="flex:1; padding: 8px;">Student</button>
+                <button id="tabAdmin" class="btn btn-outline" style="flex:1; padding: 8px;">Admin</button>
+            </div>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <span id="loginError" class="error-msg" style="margin-bottom: 15px; display: block;"></span>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            
+            <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted);">
+                <p><strong>Demo Credentials:</strong></p>
+                <p>Student: student / student123</p>
+                <p>Admin: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
+                    <img src="https://gmu.ac.in/assets/imgs/gmulogo1.png" alt="GMU Logo" style="height: 80px;">
+                    <div class="logo-text">
+                        <h1 style="font-family: var(--font-heading);">GMU EVENTS</h1>
+                        <span style="color: var(--gold-accent); font-style: italic; font-size: 12px;">Official Registration Portal</span>
+                    </div>
+                </div>
+                <p>Ensuring seamless event experiences and memorable campus engagements at GM University.</p>
+            </div>
+            <div class="footer-contact">
+                <h4>Event Helpdesk</h4>
+                <p><i class="fa-solid fa-location-dot" style="margin-right: 8px;"></i> GMU Campus, P.B. Road, Davanagere - 577006</p>
+                <p><i class="fa-solid fa-envelope" style="margin-right: 8px;"></i> events@gmu.ac.in</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Copyright &copy; 2026 GM UNIVERSITY Events. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="eventsData.js?v=1"></script>
+    <script src="script.js?v=16"></script>
+</body>
+</html>
